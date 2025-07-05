@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Field Data Capture</title>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- SheetJS for Excel export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <h1>Field Data Capture</h1>
+
+  <form id="captureForm">
+    <!-- ---------- BASIC INFO ---------- -->
+    <div class="field"><label>Workorder No</label><input name="workorderNo" required></div>
+    <div class="field"><label>Zone</label><input name="zone"></div>
+    <div class="field"><label>Sector</label><input name="sector"></div>
+    <div class="field"><label>CNC</label><input name="cnc"></div>
+    <div class="field"><label>Contractor Name or Source</label><input name="contractorName"></div>
+    <div class="field"><label>Date</label><input type="date" name="date"></div>
+    <div class="field"><label>Feeder Name</label><input name="feederName"></div>
+    <div class="field"><label>Township Name</label><input name="townshipName"></div>
+    <div class="field"><label>Transformer No</label><input name="transformerNo"></div>
+    <div class="field"><label>Stand No</label><input name="standNo"></div>
+    <div class="field"><label>Installation No</label><input name="installationNo"></div>
+    <div class="field"><label>Latitude (DDMMSS.SSS)</label><input id="lat" name="latitude"></div>
+    <div class="field"><label>Longitude (DDMMSS.SSS)</label><input id="lon" name="longitude"></div>
+
+    <!-- ---------- YES / NO ---------- -->
+    <div class="field"><label>Access</label><select name="access"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>At Home</label><select name="atHome"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Connected</label><select name="connected"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Abandoned</label><select name="abandoned"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Vandalised</label><select name="vandalised"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Illegal</label><select name="illegal"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Owner</label><select name="owner"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+
+    <!-- ---------- PERSONAL INFO ---------- -->
+    <div class="field"><label>Surname</label><input name="surname"></div>
+    <div class="field"><label>Name</label><input name="name"></div>
+    <div class="field"><label>ID No</label><input name="idNo"></div>
+    <div class="field"><label>Phone Code</label><input name="phoneCode"></div>
+    <div class="field"><label>Phone No</label><input name="phoneNo"></div>
+
+    <!-- ---------- VENDOR & METER ---------- -->
+    <div class="field"><label>Normal Vendor</label><select name="normalVendor"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Most Recent Vendor</label><input name="recentVendor"></div>
+    <div class="field"><label>Meter No</label><input name="meterNo"></div>
+    <div class="field"><label>Split</label><select name="split"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Common/Non Common Base Meter</label><input name="commonBaseMeter"></div>
+    <div class="field"><label>ED/ECU</label><input name="edEcu"></div>
+    <div class="field"><label>Meter Type</label><input name="meterType"></div>
+    <div class="field"><label>Tariff Code</label><input name="tariffCode"></div>
+    <div class="field"><label>Amp Limit</label><input name="ampLimit"></div>
+    <div class="field"><label>Supply Group Code</label><input name="supplyGroupCode"></div>
+    <div class="field"><label>Mag Card/Keypad</label><input name="magCard"></div>
+    <div class="field"><label>STS or Prop</label><input name="stsOrProp"></div>
+
+    <!-- ---------- TAMPER ---------- -->
+    <div class="field"><label>Tampered</label><select name="tampered"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Tamper Method</label><input name="tamperMethod"></div>
+    <div class="field"><label>Removed</label><select name="removed"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Tamper Not No</label><input name="tamperNotNo"></div>
+
+    <!-- ---------- PASS / FAIL & OTHER ---------- -->
+    <div class="field"><label>Card Trip</label><select name="cardTrip"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
+    <div class="field"><label>E/L Test</label><select name="elTest"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
+    <div class="field"><label>Meter Faulty</label><select name="meterFaulty"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Replaced</label><select name="replaced"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>MMF No</label><input name="mmfNo"></div>
+    <div class="field"><label>New Meter No</label><input name="newMeterNo"></div>
+    <div class="field"><label>New Meter Type</label><input name="newMeterType"></div>
+    <div class="field"><label>New Meter Amp Limit</label><input name="newMeterAmpLimit"></div>
+    <div class="field"><label>New Meter Card Trip</label><select name="newMeterCardTrip"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
+    <div class="field"><label>New Meter E/L Test</label><select name="newMeterElTest"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
+    <div class="field"><label>Sealed</label><select name="sealed"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Seal No</label><input name="sealNo"></div>
+    <div class="field"><label>Remarks</label><textarea name="remarks"></textarea></div>
+
+    <!-- ---------- ACTION BUTTONS ---------- -->
+    <div class="actions">
+      <button type="button" id="gpsBtn">Get GPS</button>
+      <button type="button" id="exportBtn">Download Excel</button>
+      <button type="submit" id="submitBtn">Submit</button>
+    </div>
+  </form>
+
+  <!-- External JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>

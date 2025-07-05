@@ -1,0 +1,76 @@
+/* ---------- BASIC LAYOUT ---------- */
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 1rem;
+  background:#f2f2f2;
+}
+
+h1{
+  text-align: center;
+  color:#333;
+}
+
+/* ---------- FORM ---------- */
+form{
+  background:#fff;
+  padding:1rem;
+  border-radius:8px;
+  box-shadow:0 0 10px rgba(0,0,0,.1);
+  display:grid;
+  gap:1rem;
+  grid-template-columns:1fr;
+  max-width:900px;
+  margin:auto;
+}
+
+@media(min-width:600px){
+  form{ grid-template-columns:1fr 1fr; }
+}
+
+/* ---------- FORM ELEMENTS ---------- */
+.field{
+  display:flex;
+  flex-direction:column;
+}
+
+label{
+  margin-bottom:.3rem;
+  font-weight:bold;
+}
+
+input,
+select,
+textarea{
+  padding:.5rem;
+  border:1px solid #ccc;
+  border-radius:4px;
+  font-size:1rem;
+}
+
+textarea{
+  min-height:50px;
+  resize:vertical;
+}
+
+/* ---------- BUTTONS ---------- */
+.actions{
+  grid-column:1 / -1;
+  display:flex;
+  gap:1rem;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+
+button{
+  border:none;
+  border-radius:5px;
+  color:#fff;
+  padding:.75rem 1rem;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+#gpsBtn   { background:#28a745; }
+#exportBtn{ background:#ffc107; color:#000; }
+#submitBtn{ background:#007bff; }
