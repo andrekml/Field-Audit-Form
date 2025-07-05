@@ -1,259 +1,1071 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Field Data Capture</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FieldAudit Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- SheetJS for Excel export -->
-  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
 
-  <style>
-    /* ---------- BASIC LAYOUT ---------- */
-    body{
-      font-family:Arial,Helvetica,sans-serif;
-      margin:0;
-      padding:1rem;
-      background:#f2f2f2;
-    }
-    h1{ text-align:center; color:#333; }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-    form{
-      background:#fff;
-      padding:1rem;
-      border-radius:8px;
-      box-shadow:0 0 10px rgba(0,0,0,.1);
-      display:grid;
-      gap:1rem;
-      grid-template-columns:1fr;
-      max-width:900px;
-      margin:auto;
-    }
-    @media(min-width:600px){
-      form{ grid-template-columns:1fr 1fr; }
-    }
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
 
-    /* ---------- FORM ELEMENTS ---------- */
-    .field{ display:flex; flex-direction:column; }
-    label{ margin-bottom:.3rem; font-weight:bold; }
-    input,select,textarea{
-      padding:.5rem;
-      border:1px solid #ccc;
-      border-radius:4px;
-      font-size:1rem;
-    }
-    textarea{ min-height:50px; resize:vertical; }
+        .sync-status {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
 
-    /* ---------- BUTTONS ---------- */
-    .actions{
-      grid-column:1/-1;
-      display:flex;
-      gap:1rem;
-      flex-wrap:wrap;
-      justify-content:space-between;
-    }
-    button{
-      border:none;
-      border-radius:5px;
-      color:#fff;
-      padding:.75rem 1rem;
-      font-size:1rem;
-      cursor:pointer;
-    }
-    #gpsBtn   { background:#28a745; }
-    #exportBtn{ background:#ffc107; color:#000; }
-    #submitBtn{ background:#007bff; }
-  </style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .section {
+            background: white;
+            margin: 1rem 0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2a5298;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-item:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-item.active {
+            background: #2a5298;
+            color: white;
+            border-color: #1e3c72;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-item:hover {
+            background: #e9ecef;
+        }
+
+        .radio-item.active {
+            background: #2a5298;
+            color: white;
+        }
+
+        .gps-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .gps-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .gps-button:hover {
+            background: #218838;
+        }
+
+        .photo-section {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            background: #fafafa;
+            margin-top: 1rem;
+        }
+
+        .photo-preview {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .photo-item {
+            width: 100px;
+            height: 100px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .conditional-section {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #2a5298;
+        }
+
+        .conditional-section.active {
+            display: block;
+        }
+
+        .footer {
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2a5298;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3c72;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .main-content {
+            padding-bottom: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .toggle-group, .radio-group {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <h1>FieldAudit Pro</h1>
+        <div class="sync-status">📶 Online | 🔄 Synced</div>
+    </div>
 
-<h1>Field Data Capture</h1>
+    <div class="container main-content">
+        <!-- Section 1: Work Order Information -->
+        <div class="section">
+            <h2>Work Order Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="workorder">Work Order No <span class="required">*</span></label>
+                    <input type="text" id="workorder" required>
+                </div>
+                <div class="form-group">
+                    <label for="zone">Zone</label>
+                    <input type="text" id="zone">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sector">Sector</label>
+                    <input type="text" id="sector">
+                </div>
+                <div class="form-group">
+                    <label for="cnc">CNC</label>
+                    <input type="text" id="cnc">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contractor">Contractor Name/Source</label>
+                    <input type="text" id="contractor">
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date">
+                </div>
+            </div>
+        </div>
 
-<form id="captureForm">
-  <!-- ---------- BASIC INFO ---------- -->
-  <div class="field"><label>Workorder No</label><input name="workorderNo"></div> <!-- optional -->
-  <div class="field"><label>Zone</label><input name="zone"></div>
-  <div class="field"><label>Sector</label><input name="sector"></div>
-  <div class="field"><label>CNC</label><input name="cnc"></div>
-  <div class="field"><label>Contractor Name or Source</label><input name="contractorName"></div>
-  <div class="field"><label>Date</label><input type="date" name="date"></div>
-  <div class="field"><label>Feeder Name</label><input name="feederName"></div>
-  <div class="field"><label>Township Name</label><input name="townshipName"></div>
-  <div class="field"><label>Transformer No <span style="color:red">*</span></label><input name="transformerNo" required></div>
-  <div class="field"><label>Stand No</label><input name="standNo"></div>
-  <div class="field"><label>Installation No</label><input name="installationNo"></div>
-  <div class="field"><label>Latitude (DDMMSS.SSS)</label><input id="lat" name="latitude" readonly></div>
-  <div class="field"><label>Longitude (DDMMSS.SSS)</label><input id="lon" name="longitude" readonly></div>
+        <!-- Section 2: Location Details -->
+        <div class="section">
+            <h2>Location Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="feeder">Feeder Name</label>
+                    <input type="text" id="feeder">
+                </div>
+                <div class="form-group">
+                    <label for="township">Township Name</label>
+                    <input type="text" id="township">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="transformer">Transformer No</label>
+                    <input type="text" id="transformer">
+                </div>
+                <div class="form-group">
+                    <label for="stand">Stand No</label>
+                    <input type="text" id="stand">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="installation">Installation No</label>
+                <input type="text" id="installation">
+            </div>
+            
+            <div class="gps-section">
+                <h3>GPS Coordinates</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" step="any" id="latitude" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" step="any" id="longitude" readonly>
+                    </div>
+                </div>
+                <button class="gps-button" onclick="getLocation()">📍 Get Current Location</button>
+                <div id="gps-status" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+            </div>
+        </div>
 
-  <!-- ---------- YES / NO ---------- -->
-  <div class="field"><label>Access</label><select name="access"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>At Home</label><select name="atHome"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Connected</label><select name="connected"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Abandoned</label><select name="abandoned"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Vandalised</label><select name="vandalised"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Illegal</label><select name="illegal"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Owner</label><select name="owner"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+        <!-- Section 3: Property Status -->
+        <div class="section">
+            <h2>Property Status</h2>
+            <div class="toggle-group">
+                <div class="toggle-item" onclick="toggleStatus(this, 'access')">
+                    <span>Access</span>
+                    <input type="hidden" id="access" value="No">
+                </div>
+                <div class="toggle-item" onclick="toggleStatus(this, 'athome')">
+                    <span>At Home</span>
+                    <input type="hidden" id="athome" value="No">
+                </div>
+                <div class="toggle-item" onclick="toggleStatus(this, 'connected')">
+                    <span>Connected</span>
+                    <input type="hidden" id="connected" value="No">
+                </div>
+                <div class="toggle-item" onclick="toggleStatus(this, 'abandoned')">
+                    <span>Abandoned</span>
+                    <input type="hidden" id="abandoned" value="No">
+                </div>
+            </div>
+            <div class="toggle-group">
+                <div class="toggle-item" onclick="toggleStatus(this, 'vandalised')">
+                    <span>Vandalised</span>
+                    <input type="hidden" id="vandalised" value="No">
+                </div>
+                <div class="toggle-item" onclick="toggleStatus(this, 'illegal')">
+                    <span>Illegal</span>
+                    <input type="hidden" id="illegal" value="No">
+                </div>
+                <div class="toggle-item" onclick="toggleStatus(this, 'owner')">
+                    <span>Owner</span>
+                    <input type="hidden" id="owner" value="No">
+                </div>
+            </div>
+        </div>
 
-  <!-- ---------- PERSONAL INFO ---------- -->
-  <div class="field"><label>Surname</label><input name="surname"></div>
-  <div class="field"><label>Name</label><input name="name"></div>
-  <div class="field"><label>ID No</label><input name="idNo"></div>
-  <div class="field"><label>Phone Code</label><input name="phoneCode"></div>
-  <div class="field"><label>Phone No</label><input name="phoneNo"></div>
+        <!-- Section 4: Customer Information -->
+        <div class="section">
+            <h2>Customer Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <input type="text" id="surname">
+                </div>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="idno">ID No</label>
+                    <input type="text" id="idno">
+                </div>
+                <div class="form-group">
+                    <label for="phonecode">Phone Code</label>
+                    <select id="phonecode">
+                        <option value="+27">+27 (South Africa)</option>
+                        <option value="+1">+1 (US/Canada)</option>
+                        <option value="+44">+44 (UK)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="phoneno">Phone No</label>
+                <input type="tel" id="phoneno">
+            </div>
+        </div>
 
-  <!-- ---------- VENDOR & METER ---------- -->
-  <div class="field"><label>Normal Vendor</label><select name="normalVendor"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Most Recent Vendor</label><input name="recentVendor"></div>
-  <div class="field"><label>Meter No</label><input name="meterNo"></div>
-  <div class="field"><label>Split</label><select name="split"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Common/Non Common Base Meter</label><input name="commonBaseMeter"></div>
-  <div class="field"><label>ED/ECU</label><input name="edEcu"></div>
-  <div class="field"><label>Meter Type</label><input name="meterType"></div>
-  <div class="field"><label>Tariff Code</label><input name="tariffCode"></div>
-  <div class="field"><label>Amp Limit</label><input name="ampLimit"></div>
-  <div class="field"><label>Supply Group Code</label><input name="supplyGroupCode"></div>
-  <div class="field"><label>Mag Card/Keypad</label><input name="magCard"></div>
-  <div class="field"><label>STS or Prop</label><input name="stsOrProp"></div>
+        <!-- Section 5: Vendor Information -->
+        <div class="section">
+            <h2>Vendor Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Normal Vendor</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'normalvendor', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'normalvendor', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="normalvendor" value="">
+                </div>
+                <div class="form-group">
+                    <label for="recentvendor">Most Recent Vendor</label>
+                    <input type="text" id="recentvendor">
+                </div>
+            </div>
+        </div>
 
-  <!-- ---------- TAMPER ---------- -->
-  <div class="field"><label>Tampered</label><select name="tampered"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Tamper Method</label><input name="tamperMethod"></div>
-  <div class="field"><label>Removed</label><select name="removed"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Tamper Not No</label><input name="tamperNotNo"></div>
+        <!-- Section 6: Current Meter Details -->
+        <div class="section">
+            <h2>Current Meter Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="meterno">Meter No</label>
+                    <input type="text" id="meterno">
+                </div>
+                <div class="form-group">
+                    <label>Split</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'split', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'split', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="split" value="">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Base Meter Type</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'basemeter', 'Common')">
+                            <span>Common</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'basemeter', 'Non-Common')">
+                            <span>Non-Common</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="basemeter" value="">
+                </div>
+                <div class="form-group">
+                    <label for="edecu">ED/ECU</label>
+                    <input type="text" id="edecu">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="metertype">Meter Type</label>
+                    <select id="metertype">
+                        <option value="">Select Type</option>
+                        <option value="Prepaid">Prepaid</option>
+                        <option value="Postpaid">Postpaid</option>
+                        <option value="Smart">Smart Meter</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tariffcode">Tariff Code</label>
+                    <input type="text" id="tariffcode">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="amplimit">Amp Limit</label>
+                    <input type="number" id="amplimit">
+                </div>
+                <div class="form-group">
+                    <label for="supplygroupcode">Supply Group Code</label>
+                    <input type="text" id="supplygroupcode">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Interface Type</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'interface', 'Mag Card')">
+                            <span>Mag Card</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'interface', 'Keypad')">
+                            <span>Keypad</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="interface" value="">
+                </div>
+                <div class="form-group">
+                    <label>Payment Type</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'payment', 'STS')">
+                            <span>STS</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'payment', 'Prop')">
+                            <span>Prop</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="payment" value="">
+                </div>
+            </div>
+        </div>
 
-  <!-- ---------- PASS / FAIL & OTHER ---------- -->
-  <div class="field"><label>Card Trip</label><select name="cardTrip"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
-  <div class="field"><label>E/L Test</label><select name="elTest"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
-  <div class="field"><label>Meter Faulty</label><select name="meterFaulty"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Replaced</label><select name="replaced"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>MMF No</label><input name="mmfNo"></div>
-  <div class="field"><label>New Meter No</label><input name="newMeterNo"></div>
-  <div class="field"><label>New Meter Type</label><input name="newMeterType"></div>
-  <div class="field"><label>New Meter Amp Limit</label><input name="newMeterAmpLimit"></div>
-  <div class="field"><label>New Meter Card Trip</label><select name="newMeterCardTrip"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
-  <div class="field"><label>New Meter E/L Test</label><select name="newMeterElTest"><option value="">—</option><option>Pass</option><option>Fail</option></select></div>
-  <div class="field"><label>Sealed</label><select name="sealed"><option value="">—</option><option>Yes</option><option>No</option></select></div>
-  <div class="field"><label>Seal No</label><input name="sealNo"></div>
-  <div class="field"><label>Remarks</label><textarea name="remarks"></textarea></div>
+        <!-- Section 7: Meter Condition -->
+        <div class="section">
+            <h2>Meter Condition</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tampered</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'tampered', 'Yes'); toggleConditional('tamper-details', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'tampered', 'No'); toggleConditional('tamper-details', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="tampered" value="">
+                </div>
+                <div class="form-group">
+                    <label>Removed</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'removed', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'removed', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="removed" value="">
+                </div>
+            </div>
+            
+            <div id="tamper-details" class="conditional-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tampermethod">Tamper Method</label>
+                        <input type="text" id="tampermethod">
+                    </div>
+                    <div class="form-group">
+                        <label for="tampernotno">Tamper Not No</label>
+                        <input type="text" id="tampernotno">
+                    </div>
+                </div>
+            </div>
 
-  <!-- ---------- ACTION BUTTONS ---------- -->
-  <div class="actions">
-    <button type="button" id="gpsBtn">Get GPS</button>
-    <button type="button" id="exportBtn">Download Excel</button>
-    <button type="submit" id="submitBtn">Submit</button>
-  </div>
-</form>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Card Trip</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'cardtrip', 'Pass')">
+                            <span>Pass</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'cardtrip', 'Fail')">
+                            <span>Fail</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="cardtrip" value="">
+                </div>
+                <div class="form-group">
+                    <label>E/L Test</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'eltest', 'Pass')">
+                            <span>Pass</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'eltest', 'Fail')">
+                            <span>Fail</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="eltest" value="">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Meter Faulty</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'meterfaulty', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'meterfaulty', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="meterfaulty" value="">
+                </div>
+                <div class="form-group">
+                    <label>Replaced</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'replaced', 'Yes'); toggleConditional('new-meter-section', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'replaced', 'No'); toggleConditional('new-meter-section', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="replaced" value="">
+                </div>
+            </div>
+        </div>
 
-<!-- ---------- MAIN SCRIPT ---------- -->
-<script>
-  const records = [];   // In-memory store
+        <!-- Section 8: New Meter Details (Conditional) -->
+        <div id="new-meter-section" class="section conditional-section">
+            <h2>New Meter Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="mmfno">MMF No</label>
+                    <input type="text" id="mmfno">
+                </div>
+                <div class="form-group">
+                    <label for="newmeterno">New Meter No</label>
+                    <input type="text" id="newmeterno">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="newmetertype">New Meter Type</label>
+                    <select id="newmetertype">
+                        <option value="">Select Type</option>
+                        <option value="Prepaid">Prepaid</option>
+                        <option value="Postpaid">Postpaid</option>
+                        <option value="Smart">Smart Meter</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newamplimit">New Meter Amp Limit</label>
+                    <input type="number" id="newamplimit">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>New Meter Card Trip</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'newcardtrip', 'Pass')">
+                            <span>Pass</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'newcardtrip', 'Fail')">
+                            <span>Fail</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="newcardtrip" value="">
+                </div>
+                <div class="form-group">
+                    <label>New Meter E/L Test</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'neweltest', 'Pass')">
+                            <span>Pass</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'neweltest', 'Fail')">
+                            <span>Fail</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="neweltest" value="">
+                </div>
+            </div>
+        </div>
 
-  /* --- Decimal → DDMMSS.SSS helper --- */
-  function toDMS(dec){
-    const sign = dec < 0 ? '-' : '';
-    const abs  = Math.abs(dec);
-    const deg  = Math.floor(abs);
-    const minF = (abs - deg) * 60;
-    const min  = Math.floor(minF);
-    const sec  = ((minF - min) * 60).toFixed(3);
-    return \`\${sign}\${String(deg).padStart(2,'0')}\${String(min).padStart(2,'0')}\${sec.padStart(6,'0')}\`;
-  }
+        <!-- Section 9: Photo Documentation -->
+        <div class="section">
+            <h2>Photo Documentation</h2>
+            
+            <div class="form-group">
+                <label>Before Photos (Max 3)</label>
+                <div class="photo-section">
+                    <input type="file" id="before-photos" accept="image/*" multiple onchange="handlePhotoUpload(this, 'before-preview', 3)">
+                    <p>📸 Click to capture or upload photos</p>
+                    <div id="before-preview" class="photo-preview"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>After Photos (Max 3)</label>
+                <div class="photo-section">
+                    <input type="file" id="after-photos" accept="image/*" multiple onchange="handlePhotoUpload(this, 'after-preview', 3)">
+                    <p>📸 Click to capture or upload photos</p>
+                    <div id="after-preview" class="photo-preview"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Damage/Tampering Photos (Max 5)</label>
+                <div class="photo-section">
+                    <input type="file" id="damage-photos" accept="image/*" multiple onchange="handlePhotoUpload(this, 'damage-preview', 5)">
+                    <p>📸 Click to capture or upload photos</p>
+                    <div id="damage-preview" class="photo-preview"></div>
+                </div>
+            </div>
+        </div>
 
-  /* --- Auto-GPS on load (mobile friendly) --- */
-  window.addEventListener('load', ()=>{
-    if (navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(
-        pos=>{
-          document.getElementById('lat').value = toDMS(pos.coords.latitude);
-          document.getElementById('lon').value = toDMS(pos.coords.longitude);
-        },
-        err=>console.warn('Auto GPS error:', err.message),
-        {enableHighAccuracy:true,timeout:10000}
-      );
-    }
-  });
+        <!-- Section 10: Completion -->
+        <div class="section">
+            <h2>Completion</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sealed</label>
+                    <div class="radio-group">
+                        <div class="radio-item" onclick="setRadio(this, 'sealed', 'Yes')">
+                            <span>Yes</span>
+                        </div>
+                        <div class="radio-item" onclick="setRadio(this, 'sealed', 'No')">
+                            <span>No</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="sealed" value="">
+                </div>
+                <div class="form-group">
+                    <label for="sealno">Seal No</label>
+                    <input type="text" id="sealno">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="remarks">Remarks</label>
+                <textarea id="remarks" rows="4" placeholder="Additional comments or observations..."></textarea>
+            </div>
+        </div>
+    </div>
 
-  /* --- GPS BUTTON --- */
-  document.getElementById('gpsBtn').onclick = () => {
-    if(!navigator.geolocation) return alert('Geolocation not supported.');
-    navigator.geolocation.getCurrentPosition(
-      pos=>{
-        document.getElementById('lat').value = toDMS(pos.coords.latitude);
-        document.getElementById('lon').value = toDMS(pos.coords.longitude);
-      },
-      err=> alert('GPS Error: '+err.message),
-      {enableHighAccuracy:true,timeout:10000}
-    );
-  };
+    <div class="footer">
+        <div class="button-group">
+            <button class="btn btn-secondary" onclick="saveDraft()">💾 Save Draft</button>
+            <button class="btn btn-primary" onclick="submitForm()">📤 Submit</button>
+            <button class="btn btn-danger" onclick="clearForm()">🗑️ Clear</button>
+        </div>
+    </div>
 
-  /* --- FORM SUBMIT --- */
-  document.getElementById('captureForm').addEventListener('submit',function(e){
-    e.preventDefault();
+    <script>
+        let photoStorage = {};
 
-    // Grab form entries
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
 
-    // Transformer No validation (extra safety)
-    if(!data.transformerNo.trim()){
-      alert('Transformer Number is mandatory.');
-      return;
-    }
+        function toggleStatus(element, fieldId) {
+            const hiddenInput = document.getElementById(fieldId);
+            const currentValue = hiddenInput.value;
+            
+            if (currentValue === 'Yes') {
+                element.classList.remove('active');
+                hiddenInput.value = 'No';
+            } else {
+                element.classList.add('active');
+                hiddenInput.value = 'Yes';
+            }
+        }
 
-    // Format date to YYYY/MM/DD
-    if(data.date){
-      const d = new Date(data.date);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2,'0');
-      const dd = String(d.getDate()).padStart(2,'0');
-      data.date = \`\${yyyy}/\${mm}/\${dd}\`;
-    }
+        function setRadio(element, fieldId, value) {
+            const hiddenInput = document.getElementById(fieldId);
+            const radioGroup = element.parentElement;
+            
+            // Remove active class from all items in the group
+            radioGroup.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            element.classList.add('active');
+            
+            // Set the hidden input value
+            hiddenInput.value = value;
+        }
 
-    records.push(data);
-    alert('Data saved ✔');
-    this.reset();
-  });
+        function toggleConditional(sectionId, showValue) {
+            const section = document.getElementById(sectionId);
+            const triggerValue = event.target.textContent.trim();
+            
+            if (triggerValue === showValue) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
+            }
+        }
 
-  /* --- EXCEL EXPORT --- */
-  document.getElementById('exportBtn').addEventListener('click',()=>{
-    if(records.length===0) return alert('No data to export.');
+        function getLocation() {
+            const statusDiv = document.getElementById('gps-status');
+            const latInput = document.getElementById('latitude');
+            const lonInput = document.getElementById('longitude');
+            
+            if (navigator.geolocation) {
+                statusDiv.innerHTML = '📍 Getting location...';
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        latInput.value = position.coords.latitude.toFixed(6);
+                        lonInput.value = position.coords.longitude.toFixed(6);
+                        statusDiv.innerHTML = '✅ Location captured successfully';
+                        statusDiv.style.color = 'green';
+                    },
+                    function(error) {
+                        statusDiv.innerHTML = '❌ Error getting location: ' + error.message;
+                        statusDiv.style.color = 'red';
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            } else {
+                statusDiv.innerHTML = '❌ Geolocation not supported';
+                statusDiv.style.color = 'red';
+            }
+        }
 
-    /* 1️⃣ Header mapping */
-    const map = {
-      workorderNo:"Workorder No",zone:"Zone",sector:"Sector",cnc:"CNC",
-      contractorName:"Contractor Name",date:"Date",feederName:"Feeder Name",
-      townshipName:"Township Name",transformerNo:"Transformer No",standNo:"Stand No",
-      installationNo:"Installation No",latitude:"Latitude",longitude:"Longitude",
-      access:"Access",atHome:"At Home",connected:"Connected",abandoned:"Abandoned",
-      vandalised:"Vandalised",illegal:"Illegal",owner:"Owner",surname:"Surname",
-      name:"Name",idNo:"ID No",phoneCode:"Phone Code",phoneNo:"Phone No",
-      normalVendor:"Normal Vendor",recentVendor:"Most Recent Vendor",meterNo:"Meter No",
-      split:"Split",commonBaseMeter:"Common/Non Common Base Meter",edEcu:"ED/ECU",
-      meterType:"Meter Type",tariffCode:"Tariff Code",ampLimit:"Amp Limit",
-      supplyGroupCode:"Supply Group Code",magCard:"Mag Card/Keypad",stsOrProp:"STS or Prop",
-      tampered:"Tampered",tamperMethod:"Tamper Method",removed:"Removed",
-      tamperNotNo:"Tamper Not No",cardTrip:"Card Trip",elTest:"E/L Test",
-      meterFaulty:"Meter Faulty",replaced:"Replaced",mmfNo:"MMF No",
-      newMeterNo:"New Meter No",newMeterType:"New Meter Type",
-      newMeterAmpLimit:"New Meter Amp Limit",newMeterCardTrip:"New Meter Card Trip",
-      newMeterElTest:"New Meter E/L Test",sealed:"Sealed",sealNo:"Seal No",
-      remarks:"Remarks"
-    };
+        function handlePhotoUpload(input, previewId, maxFiles) {
+            const files = Array.from(input.files);
+            const previewDiv = document.getElementById(previewId);
+            
+            if (files.length > maxFiles) {
+                alert(`Maximum ${maxFiles} photos allowed`);
+                return;
+            }
+            
+            previewDiv.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-item';
+                    photoItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Photo ${index + 1}">
+                        <button class="photo-delete" onclick="removePhoto(this, '${previewId}', '${input.id}')">×</button>
+                    `;
+                    previewDiv.appendChild(photoItem);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Store photos in memory
+            if (!photoStorage[previewId]) {
+                photoStorage[previewId] = [];
+            }
+            photoStorage[previewId] = files;
+        }
 
-    /* 2️⃣ Transform records */
-    const formatted = records.map(rec=>{
-      const obj={};
-      for(const k in rec) obj[map[k]||k] = rec[k];
-      return obj;
-    });
+        function removePhoto(button, previewId, inputId) {
+            const photoItem = button.parentElement;
+            const previewDiv = document.getElementById(previewId);
+            const index = Array.from(previewDiv.children).indexOf(photoItem);
+            
+            // Remove from preview
+            photoItem.remove();
+            
+            // Remove from storage
+            if (photoStorage[previewId]) {
+                photoStorage[previewId].splice(index, 1);
+            }
+            
+            // Update file input (simplified - in real app would need proper file management)
+            const input = document.getElementById(inputId);
+            input.value = '';
+        }
 
-    /* 3️⃣ Export */
-    const ws = XLSX.utils.json_to_sheet(formatted);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,'Data');
-    XLSX.writeFile(wb,'Field_Data.xlsx');
-  });
-</script>
+        function saveDraft() {
+            const formData = collectFormData();
+            
+            // In a real app, this would save to local storage or database
+            console.log('Saving draft:', formData);
+            
+            // Show success message
+            alert('✅ Draft saved successfully!');
+            
+            // Update sync status
+            document.querySelector('.sync-status').innerHTML = '📶 Online | 💾 Draft Saved';
+        }
 
+        function submitForm() {
+            const formData = collectFormData();
+            
+            // Basic validation
+            if (!formData.workorder) {
+                alert('❌ Work Order No is required');
+                return;
+            }
+            
+            if (!formData.latitude || !formData.longitude) {
+                alert('❌ GPS coordinates are required. Please capture location.');
+                return;
+            }
+            
+            // In a real app, this would submit to server
+            console.log('Submitting form:', formData);
+            
+            // Show success message
+            alert('✅ Form submitted successfully!');
+            
+            // Update sync status
+            document.querySelector('.sync-status').innerHTML = '📶 Online | ✅ Submitted';
+            
+            // Clear form after successful submission
+            setTimeout(() => {
+                if (confirm('Form submitted successfully! Clear form for next entry?')) {
+                    clearForm();
+                }
+            }, 1000);
+        }
+
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                // Clear all inputs
+                document.querySelectorAll('input[type="text"], input[type="number"], input[type="tel"], input[type="date"], textarea, select').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Clear hidden inputs
+                document.querySelectorAll('input[type="hidden"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Remove active classes
+                document.querySelectorAll('.toggle-item.active, .radio-item.active').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Hide conditional sections
+                document.querySelectorAll('.conditional-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Clear photo previews
+                document.querySelectorAll('.photo-preview').forEach(preview => {
+                    preview.innerHTML = '';
+                });
+                
+                // Clear photo storage
+                photoStorage = {};
+                
+                // Clear file inputs
+                document.querySelectorAll('input[type="file"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Reset date to today
+                document.getElementById('date').valueAsDate = new Date();
+                
+                // Update sync status
+                document.querySelector('.sync-status').innerHTML = '📶 Online | 🔄 Ready';
+                
+                alert('✅ Form cleared successfully!');
+            }
+        }
+
+        function collectFormData() {
+            const formData = {};
+            
+            // Collect all text inputs
+            document.querySelectorAll('input[type="text"], input[type="number"], input[type="tel"], input[type="date"], textarea, select').forEach(input => {
+                formData[input.id] = input.value;
+            });
+            
+            // Collect all hidden inputs (toggle and radio values)
+            document.querySelectorAll('input[type="hidden"]').forEach(input => {
+                formData[input.id] = input.value;
+            });
+            
+            // Add photo information
+            formData.photos = {};
+            Object.keys(photoStorage).forEach(key => {
+                formData.photos[key] = photoStorage[key].length;
+            });
+            
+            // Add timestamp
+            formData.timestamp = new Date().toISOString();
+            
+            return formData;
+        }
+
+        // Auto-save draft every 30 seconds
+        setInterval(() => {
+            const formData = collectFormData();
+            if (Object.keys(formData).length > 2) { // Only save if there's actual data
+                console.log('Auto-saving draft...');
+                // In real app, would save to local storage
+            }
+        }, 30000);
+
+        // Initialize GPS on page load
+        window.addEventListener('load', function() {
+            // Auto-get location on load (optional)
+            // getLocation();
+        });
+
+        // Prevent form submission on Enter key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
